@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.0">
+  <POU Name="MAIN" Id="{5923207b-7a28-40c0-bfea-04bf7407582a}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	//tank : tank1;
+	//tank : Tank1_1;
+	tank : Tank1_1_1;
+	bfill : BOOL;
+ 
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+tank(bSwitchFill := bfill);]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="9" Count="0" />
+      <LineId Id="17" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

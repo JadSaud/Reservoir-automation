@@ -1,0 +1,147 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.0">
+  <POU Name="Tank1_1_1" Id="{0480b423-bb1c-4121-a27e-14f271a2a664}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Tank1_1_1
+VAR_INPUT
+	//bSwitchFill : BOOL;
+	bSwitchSink : BOOL;
+END_VAR
+VAR_IN_OUT
+	bSwitchFill : BOOL;
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	bShl : BOOL := FALSE;
+	bSll : BOOL := TRUE;
+	bS90l : BOOL;
+	nState : INT;
+	level: INT := 3;
+	tTime : TON;
+	rTrig : R_TRIG;	
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+IF level < 5 THEN
+	bShl := FALSE;	
+	bS90l := TRUE;
+	bSll := TRUE;
+ELSIF level >= 5 AND level < 90 THEN
+	bShl := FALSE;	
+	bS90l := TRUE;
+	bSll := FALSE;
+ELSIF level >= 90 AND level < 100 THEN
+	bShl := FALSE;	
+	bS90l := FALSE;
+	bSll := FALSE;
+ELSIF level = 100 THEN
+	bShl := TRUE;	
+	bS90l := FALSE;
+	bSll := FALSE;
+END_IF
+
+
+
+
+CASE nState OF
+	
+	0:	
+		IF  NOT bSwitchSink THEN
+			IF bSll THEN
+				bSwitchFill := TRUE;
+			END_IF
+			tTime(IN := bSwitchFill,PT := T#2S);
+			rTrig(CLK := tTime.Q);
+			IF rTrig.Q THEN
+				level := level + 2;
+				tTime(IN := FALSE);
+				IF bShl THEN
+					bSwitchFill := FALSE;
+					nState := 10;
+				END_IF
+			END_IF
+		 		
+		ELSE
+			IF NOT bSwitchFill THEN
+				nState := 10;
+			ELSE
+				IF bSll THEN
+					bSwitchFill := TRUE;
+				END_IF
+				tTime(IN := bSwitchFill,PT := T#2S);
+				rTrig(CLK := tTime.Q);
+				IF rTrig.Q THEN
+					level := level + 1;
+					tTime(IN := FALSE);
+					IF bShl THEN
+						bSwitchFill := FALSE;
+						nState := 10;
+					END_IF
+				END_IF
+			END_IF
+		END_IF
+		
+	10: 
+		IF  bSwitchSink THEN
+			IF bShl OR NOT bS90l THEN
+				bSwitchFill := FALSE;
+			ELSE
+				bSwitchFill := bSwitchFill;
+			END_IF
+			IF NOT bSwitchFill THEN
+				tTime(IN := bSwitchSink,PT := T#2S);
+				rTrig(CLK := tTime.Q);
+				IF rTrig.q THEN
+					tTime(IN := FALSE);
+					level := level - 1;
+					IF bSll THEN
+						bSwitchSink := FALSE;
+						nState := 0;
+					END_IF
+				END_IF
+			ELSE
+				nState := 0;
+			END_IF
+		ELSE
+			IF NOT bSwitchFill THEN
+				nState := 10;
+			ELSE
+				nState := 0;
+			END_IF		
+		END_IF
+					
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="Tank1_1_1">
+      <LineId Id="360" Count="0" />
+      <LineId Id="356" Count="0" />
+      <LineId Id="361" Count="0" />
+      <LineId Id="370" Count="0" />
+      <LineId Id="364" Count="0" />
+      <LineId Id="366" Count="0" />
+      <LineId Id="372" Count="1" />
+      <LineId Id="371" Count="0" />
+      <LineId Id="375" Count="2" />
+      <LineId Id="374" Count="0" />
+      <LineId Id="378" Count="3" />
+      <LineId Id="363" Count="0" />
+      <LineId Id="357" Count="2" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="406" Count="6" />
+      <LineId Id="416" Count="4" />
+      <LineId Id="424" Count="0" />
+      <LineId Id="426" Count="11" />
+      <LineId Id="441" Count="4" />
+      <LineId Id="449" Count="0" />
+      <LineId Id="451" Count="8" />
+      <LineId Id="461" Count="1" />
+      <LineId Id="466" Count="8" />
+      <LineId Id="478" Count="1" />
+      <LineId Id="481" Count="3" />
+      <LineId Id="488" Count="9" />
+      <LineId Id="19" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

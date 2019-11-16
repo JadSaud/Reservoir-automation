@@ -1,0 +1,182 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.0">
+  <POU Name="Tank1_1" Id="{7d9ec4ef-88e1-453f-b1b5-ca44d24471b8}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Tank1_1
+VAR_INPUT
+	//bSwitchFill : BOOL;
+	bSwitchSink : BOOL;
+END_VAR
+VAR_IN_OUT
+	bSwitchFill : BOOL;
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	bShl : BOOL := FALSE;
+	bSll : BOOL := TRUE;
+	nState : INT;
+	level: INT := 3;
+	tTime : TON;
+	rTrig : R_TRIG;	
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+
+CASE nState OF
+	
+	0:	
+		IF  NOT bSwitchSink THEN
+			IF bSll THEN
+				bSwitchFill := TRUE;
+			END_IF
+			(*IF NOT bShl THEN
+				bSwitchFill := TRUE;
+			END_IF*)
+			tTime(IN := bSwitchFill,PT := T#1S);
+			rTrig(CLK := tTime.Q);
+			IF rTrig.Q THEN
+				level := level + 2;
+				tTime(IN := FALSE);
+				IF level >= 5 THEN
+					bSll := FALSE;
+				END_IF
+				IF level = 100 THEN
+					bShl := TRUE;
+					bSwitchFill := FALSE;
+					nState := 10;
+				END_IF
+			END_IF
+		 		
+		ELSE
+			IF NOT bSwitchFill THEN
+				nState := 10;
+			ELSE
+				IF bSll THEN
+					bSwitchFill := TRUE;
+				END_IF
+				(*IF NOT bShl THEN
+					bSwitchFill := TRUE;
+				END_IF*)
+				tTime(IN := bSwitchFill,PT := T#1S);
+				rTrig(CLK := tTime.Q);
+				IF rTrig.Q THEN
+					level := level + 1;
+					tTime(IN := FALSE);
+					IF level >= 5 THEN
+						bSll := FALSE;
+					END_IF
+					IF level = 100 THEN
+						bShl := TRUE;
+						bSwitchFill := FALSE;
+						nState := 10;
+					END_IF
+				END_IF
+			END_IF
+		END_IF
+		
+	10: 
+		
+		IF  bSwitchSink THEN
+			IF bShl THEN
+				bSwitchFill := FALSE;
+			END_IF
+			IF level > 90 THEN
+				bSwitchFill := FALSE;
+			ELSIF level <= 90 THEN
+				bSwitchFill := bSwitchFill;
+			END_IF
+			IF NOT bSwitchFill THEN
+				tTime(IN := bSwitchSink,PT := T#1S);
+				rTrig(CLK := tTime.Q);
+				IF rTrig.q THEN
+					tTime(IN := FALSE);
+					level := level - 1;
+					IF level <> 100 THEN
+						bShl := FALSE;
+					END_IF
+					IF level < 5 THEN
+						bSwitchSink := FALSE;
+						bSll := TRUE;
+						nState := 0;
+					END_IF
+				END_IF
+			ELSE
+				IF level <> 100 THEN
+					bShl := FALSE;
+				END_IF
+				nState := 0;
+			END_IF
+		ELSE
+			IF NOT bSwitchFill THEN
+				nState := 10;
+			ELSE
+				nState := 0;
+			END_IF		
+		END_IF
+					
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="Tank1_1">
+      <LineId Id="363" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="304" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="65" Count="0" />
+      <LineId Id="166" Count="0" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="305" Count="0" />
+      <LineId Id="311" Count="1" />
+      <LineId Id="310" Count="0" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="131" Count="0" />
+      <LineId Id="110" Count="1" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="306" Count="2" />
+      <LineId Id="382" Count="3" />
+      <LineId Id="113" Count="0" />
+      <LineId Id="138" Count="0" />
+      <LineId Id="252" Count="0" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="409" Count="1" />
+      <LineId Id="412" Count="0" />
+      <LineId Id="314" Count="18" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="413" Count="0" />
+      <LineId Id="261" Count="0" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="124" Count="0" />
+      <LineId Id="184" Count="0" />
+      <LineId Id="333" Count="0" />
+      <LineId Id="335" Count="1" />
+      <LineId Id="340" Count="0" />
+      <LineId Id="342" Count="0" />
+      <LineId Id="334" Count="0" />
+      <LineId Id="343" Count="0" />
+      <LineId Id="193" Count="4" />
+      <LineId Id="338" Count="1" />
+      <LineId Id="337" Count="0" />
+      <LineId Id="198" Count="1" />
+      <LineId Id="201" Count="1" />
+      <LineId Id="192" Count="0" />
+      <LineId Id="206" Count="0" />
+      <LineId Id="185" Count="0" />
+      <LineId Id="347" Count="1" />
+      <LineId Id="344" Count="0" />
+      <LineId Id="349" Count="0" />
+      <LineId Id="345" Count="0" />
+      <LineId Id="350" Count="0" />
+      <LineId Id="405" Count="0" />
+      <LineId Id="355" Count="0" />
+      <LineId Id="406" Count="2" />
+      <LineId Id="346" Count="0" />
+      <LineId Id="123" Count="0" />
+      <LineId Id="19" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
